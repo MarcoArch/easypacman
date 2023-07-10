@@ -1,2 +1,2 @@
 # easypacman
-Simply script for Arch Linux's package manager Pacman.
+This is a simply script for Arch Linux's package manager Pacman.
