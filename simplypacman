@@ -1,0 +1,34 @@
+#!/bin/bash
+while true
+do
+echo "==============="
+echo "   Pac-Man     "
+echo "==============="
+echo "1) Installa"
+echo "2) Rimuovi"
+echo "3) Pacchetti installati"
+echo "4) Pulisce l'intera cache"
+echo -e "\n"
+echo "Premi u per uscire "
+echo -e "\n"
+read -p "Scegli: " answer
+case "$answer" in
+1)  clear
+    read -p "Nome del pacchetto da installare: " pkg
+    sudo pacman -S $pkg
+    clear
+    continue
+    ;;
+2)  clear
+    read -p "Nome del pacchetto da rimuovere: " pkg
+    sudo pacman -Rs $pkg
+    clear
+    continue
+    ;;
+3)  pacman -Q ;;
+4)  sudo pacman -Scc ;;
+u)  exit ;;
+*)  clear
+    continue
+esac
+done
