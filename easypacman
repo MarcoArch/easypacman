@@ -4,29 +4,31 @@ do
 echo "==============="
 echo "   Pac-Man     "
 echo "==============="
-echo "1) Installa"
-echo "2) Rimuovi"
-echo "3) Pacchetti installati"
-echo "4) Pulisce l'intera cache"
+echo "1) Aggiorna"
+echo "2) Installa"
+echo "3) Rimuovi"
+echo "4) Pacchetti installati"
+echo "5) Pulisce l'intera cache"
 echo -e "\n"
 echo "Premi u per uscire "
 echo -e "\n"
 read -p "Scegli: " answer
 case "$answer" in
-1)  clear
+1)  sudo pacman -Syu ;;
+2)  clear
     read -p "Nome del pacchetto da installare: " pkg
     sudo pacman -S $pkg
     clear
     continue
     ;;
-2)  clear
+3)  clear
     read -p "Nome del pacchetto da rimuovere: " pkg
     sudo pacman -Rs $pkg
     clear
     continue
     ;;
-3)  pacman -Q ;;
-4)  sudo pacman -Scc ;;
+4) pacman -Q ;;
+5) sudo pacman -Scc ;;
 u)  exit ;;
 *)  clear
     continue
