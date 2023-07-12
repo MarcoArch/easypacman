@@ -8,7 +8,8 @@ echo "1) Aggiorna"
 echo "2) Installa"
 echo "3) Rimuovi"
 echo "4) Pacchetti installati"
-echo "5) Pulisce l'intera cache"
+echo "5) Pacchetti orfani"
+echo "6) Pulisce l'intera cache"
 echo -e "\n"
 echo "Premi u per uscire "
 echo -e "\n"
@@ -28,7 +29,15 @@ case "$answer" in
     continue
     ;;
 4) pacman -Q ;;
-5) sudo pacman -Scc ;;
+5) if pacman -Qdt &> /dev/null; then
+    echo  "Rimozione dei pacchetti obsoleti e delle dipendenze..."
+    pacman -Qdt | awk '{print $1}' | sudo pacman -Rns -
+else
+    echo  "Nessun pacchetto obsoleto da rimuovere."
+    fi
+    continue
+    ;;
+6)  sudo pacman -Scc ;;
 u)  exit ;;
 *)  clear
     continue
