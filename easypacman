@@ -1,45 +1,88 @@
 #!/bin/bash
-while true
-do
-echo "==============="
-echo "   Pac-Man     "
-echo "==============="
-echo "1) Aggiorna"
-echo "2) Installa"
-echo "3) Rimuovi"
-echo "4) Pacchetti installati"
-echo "5) Pacchetti orfani"
-echo "6) Pulisce l'intera cache"
-echo -e "\n"
-echo "Premi u per uscire "
-echo -e "\n"
-read -p "Scegli: " answer
-case "$answer" in
-1)  sudo pacman -Syu ;;
-2)  clear
-    read -p "Nome del pacchetto da installare: " pkg
-    sudo pacman -S $pkg
-    clear
-    continue
-    ;;
-3)  clear
-    read -p "Nome del pacchetto da rimuovere: " pkg
-    sudo pacman -Rs $pkg
-    clear
-    continue
-    ;;
-4) pacman -Q ;;
-5) if pacman -Qdt &> /dev/null; then
-    echo  "Rimozione dei pacchetti obsoleti e delle dipendenze..."
-    pacman -Qdt | awk '{print $1}' | sudo pacman -Rns -
-else
-    echo  "Nessun pacchetto obsoleto da rimuovere."
-    fi
-    continue
-    ;;
-6)  sudo pacman -Scc ;;
-u)  exit ;;
-*)  clear
-    continue
-esac
+
+check=$(pacman -Qdt &> /dev/null)
+pkgs=$(pacman -Qqe | wc -l)
+pkgsx=$(echo $(pacman -Qqe))
+
+
+# Show confirmation message
+show_confirmation() {
+  whiptail --title "Confirm" --yesno "$1" 10 60
+  return $?
+}
+
+# Show information message
+show_message() {
+  whiptail --title "Info" --msgbox "$1" 10 60
+}
+
+show_long_confirmation() {
+  whiptail --title "Confirm" --yesno "$1" 0 0
+}
+
+
+# Show main menu
+while true; do
+  choice=$(whiptail --title "Easypacman v1.0" --menu "Seleziona un'opzione:" 0 60 0 \
+    "1" "Aggiorna" \
+    "2" "Installa" \
+    "3" "Rimuovi" \
+    "4" "Pacchetti installati" \
+    "5" "Pacchetti orfani" \
+    "6" "Svuota l'intera cache" \
+    "7" "Exit" 3>&1 1>&2 2>&3)
+
+  # Check if choice is empty (user pressed Cancel)
+  if [ -z "$choice" ]; then
+    echo "Uscendo..."
+    exit 0
+  fi
+
+ case $choice in
+    1)
+      if show_confirmation "Aggiornare il sistema?"; then
+        echo "Aggiornamento.."
+        # pacman update
+        sudo pacman -Syu
+        show_message "Aggiornamento Completato!"
+      else
+        show_message "Annullamento in corso.."
+      fi
+      ;;
+    2)
+      read -p "Nome del pacchetto da installare: " pkg
+      sudo pacman -S $pkg
+      ;;
+    3)  
+      read -p "Nome del pacchetto da rimuovere: " pkg
+      sudo pacman -Rs $pkg
+      ;;
+    4) 
+      if show_long_confirmation "Pacchetti Installati: $pkgs, Salvare lista?"; then
+      pacman -Qqe > ~/lista_pacchetti
+      show_message "lista salvata in $HOME/lista_pacchetti"
+      else
+        show_message "Annullamento in corso.."
+      fi
+      ;;
+    5) 
+      if pacman -Qdt &> /dev/null; then
+         if show_confirmation  "Trovati pacchetti orfani e possibili dipendenze, mostrare?"; then
+            pacman -Qdt | awk '{print $1}' | sudo pacman -Rns -
+         else
+            show_message "Annullamento in corso.."   
+         fi 
+      else
+         show_message "Nessun pacchetto obsoleto da rimuovere."
+      fi    
+      ;;
+    6)  sudo pacman -Scc ;;
+    7)
+      show_message "${green}Arrivederci!${reset}"
+      exit 0
+      ;;
+    *)
+      show_message "Nessuna opzione valida, riprova!"
+      ;;
+  esac
 done
